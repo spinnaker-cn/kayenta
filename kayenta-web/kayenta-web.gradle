@@ -30,6 +30,7 @@ dependencies {
   compile project(':kayenta-objectstore-memory')
   compile project(':kayenta-orca')
   compile project(':kayenta-prometheus')
+  compile project(':kayenta-oss')
   compile project(':kayenta-s3')
   compile project(':kayenta-signalfx')
   compile project(':kayenta-stackdriver')

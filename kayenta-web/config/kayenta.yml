@@ -5,6 +5,18 @@ redis:
   connection: redis://localhost:6379
 
 kayenta:
+  oss:
+    enabled: true
+    name: xxxxx
+    bucket: sxxxx
+    accessKeyId: xxxxxx
+    accessKeySecret: xxxxxx
+    region: cn-beijing
+    rootFolder: kayenta
+    endPoint: oss-cn-beijing.aliyuncs.com
+    supportedTypes:
+      - OBJECT_STORE
+      - CONFIGURATION_STORE
   atlas:
     enabled: false
 #    stageTimeoutMinutes: 3
