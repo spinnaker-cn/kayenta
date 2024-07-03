@@ -1,9 +1,14 @@
-FROM alpine:3.11
-LABEL maintainer="sig-platform@spinnaker.io"
-RUN apk --no-cache add --update bash openjdk11-jre
-RUN addgroup -S -g 10111 spinnaker
-RUN adduser -S -G spinnaker -u 10111 spinnaker
-COPY kayenta-web/build/install/kayenta /opt/kayenta
-RUN mkdir -p /opt/kayenta/plugins && chown -R spinnaker:nogroup /opt/kayenta/plugins
+FROM openjdk:8-jre-alpine
+
+MAINTAINER delivery-engineering@netflix.com
+
+RUN sed -i 's|http://dl-cdn.alpinelinux.org/alpine|https://mirrors.aliyun.com/alpine|g' /etc/apk/repositories
+
+COPY ./kayenta-web/build/install/kayenta /opt/kayenta
+
+RUN apk --no-cache add --update bash
+
+RUN adduser -D -S spinnaker
+
 USER spinnaker
 CMD ["/opt/kayenta/bin/kayenta"]

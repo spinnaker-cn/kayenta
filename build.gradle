@@ -15,13 +15,79 @@
  * limitations under the License.
  */
 
-plugins {
-  id "io.spinnaker.project" version "$spinnakerGradleVersion" apply false
-  id 'idea'
+buildscript {
+  repositories {
+    maven { url "http://spinnaker.maven.cn:8000/repository/spinnaker-public/"}
+    jcenter()
+    maven { url "http://spinnaker.bintray.com/gradle" }
+    maven { url "https://plugins.gradle.org/m2/" }
+  }
+  dependencies {
+    classpath 'com.netflix.spinnaker.gradle:spinnaker-dev-plugin:5.2.2'
+    classpath "com.netflix.nebula:nebula-kotlin-plugin:${kotlinVersion}"
+    classpath 'com.github.jk1:gradle-license-report:1.8'
+    classpath "org.owasp:dependency-check-gradle:6.5.1"
+    classpath 'org.yaml:snakeyaml:1.23'
+  }
+
 }
 
 allprojects {
-  apply plugin: "io.spinnaker.project"
+  group = "com.netflix.kayenta"
+  apply plugin: "spinnaker.base-project"
+  apply plugin: "groovy"
+  apply plugin: "java"
+
+  ext {
+    spinnakerDependenciesVersion = '1.17.0'
+    if (project.hasProperty('spinnakerDependenciesVersion')) {
+      spinnakerDependenciesVersion = project.property('spinnakerDependenciesVersion')
+    }
+  }
+
+  def checkLocalVersions = [spinnakerDependenciesVersion: spinnakerDependenciesVersion]
+  if (ext.has('versions')) {
+    def extVers = ext.get('versions')
+    if (extVers instanceof Map) {
+      checkLocalVersions.putAll(extVers)
+    }
+  }
+
+  def localVersions = checkLocalVersions.findAll { it.value.endsWith('-SNAPSHOT') }
+  if (localVersions) {
+    logger.info("Enabling mavenLocal repo for $localVersions")
+    repositories {
+      mavenLocal()
+    }
+  }
+
+  spinnaker {
+    dependenciesVersion = spinnakerDependenciesVersion
+  }
+
+  test {
+    testLogging {
+      exceptionFormat = "full"
+    }
+    minHeapSize = "512m"
+    maxHeapSize = "512m"
+  }
+
+  tasks.withType(JavaExec) {
+    if (System.getProperty('DEBUG', 'false') == 'true') {
+      jvmArgs '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8191'
+    }
+  }
+
+  configurations.all {
+    exclude group: 'org.mortbay.jetty', module: 'servlet-api'
+    exclude group: 'javax.servlet', module: 'servlet-api'
+    exclude group: 'org.slf4j', module: 'slf4j-log4j12'
+    exclude group: 'org.slf4j', module: 'slf4j-simple'
+    resolutionStrategy {
+      force 'com.google.guava:guava:20.0'
+    }
+  }
 }
 
 subprojects { project ->

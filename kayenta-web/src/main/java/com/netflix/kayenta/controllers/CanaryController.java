@@ -201,16 +201,13 @@ public class CanaryController {
               .collect(Collectors.joining(","));
     }
 
-    List<String> statusesList =
-        Stream.of(statuses.split(","))
-            .map(s -> s.trim())
-            .filter(s -> !StringUtils.isEmpty(s))
-            .collect(Collectors.toList());
-    ExecutionRepository.ExecutionCriteria executionCriteria =
-        new ExecutionRepository.ExecutionCriteria()
-            .setPageSize(limit)
-            .setStatuses(statusesList)
-            .setPage(page);
+    List<String> statusesList = Stream.of(statuses.split(","))
+      .map(s -> s.trim())
+      .filter(s -> !StringUtils.isEmpty(s))
+      .collect(Collectors.toList());
+    ExecutionRepository.ExecutionCriteria executionCriteria = new ExecutionRepository.ExecutionCriteria()
+      .setPageSize(limit)
+      .setStatuses(statusesList);
 
     // Users of the ad-hoc endpoint can either omit application or pass 'ad-hoc' explicitly.
     if (StringUtils.isEmpty(application)) {
